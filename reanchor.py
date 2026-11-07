@@ -275,6 +275,18 @@ def jitter_coord(base, range_units):
     return round(base + offset, 6)
 
 
+def home_for_ip(ip, region):
+    """按 IP 哈希在锚点 ±0.012 度（约 ±1.3km）内定死一个住址，跨轮不变。
+    原版每轮在 ±3km 里重掷住址，等于这家人每 20 分钟搬一次家；真住户的家是固定的，
+    固定的家 + 逐动作 ±11m 漂移才像真人。IP 拿不到时退回随机。"""
+    if ip == "unknown":
+        return jitter_coord(region["lat"], 120), jitter_coord(region["lon"], 120)
+    h = hashlib.md5(f"home|{ip}|{region['code']}".encode()).hexdigest()
+    off_lat = (int(h[:4], 16) % 241 - 120) / 10000.0
+    off_lon = (int(h[4:8], 16) % 241 - 120) / 10000.0
+    return round(region["lat"] + off_lat, 6), round(region["lon"] + off_lon, 6)
+
+
 # --------------------------------------------------------------------------
 # 三核自检（与原版同一套判据：跳转 / YT Premium / YT Music）
 # --------------------------------------------------------------------------
@@ -421,9 +433,8 @@ def run_session(region, args, log):
         return False
     log("INFO", f"词库: {len(keywords)} 条（来源 {src}）")
 
-    home_lat = jitter_coord(region["lat"], 270)
-    home_lon = jitter_coord(region["lon"], 270)
-    log("INFO", f"虚拟住址: {home_lat}, {home_lon}（{region['name']} 基准 ±3km）")
+    home_lat, home_lon = home_for_ip(ip, region)
+    log("INFO", f"虚拟住址: {home_lat}, {home_lon}（{region['name']} 锚点 ±1.3km 内按 IP 定死，跨轮不变；每动作再抖 ±11m）")
 
     lang_qs = f"hl={urllib.parse.quote(region['hl'])}&gl={region['gl']}"
     cookie_file = STATE_DIR / f"cookies_{hashlib.md5(ip.encode()).hexdigest()[:10]}.json"
