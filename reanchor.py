@@ -353,23 +353,51 @@ ECO_URLS = ["https://about.google/", "https://safety.google/",
             "https://support.google.com/?hl={hl}"]
 
 
-def build_action(persona_platform, region, kw, lat, lon, lang_qs):
+# Maps 动作的本地词：真人在地图里搜的是附近的店和设施，不是热搜赛事词。
+# 按界面语言给一小组，抽不到对应语言时用英文（游客/双语环境也成立）。
+MAP_LOCAL_TERMS = {
+    "en": ["coffee near me", "pharmacy near me", "gas station near me",
+           "grocery store near me", "restaurants near me", "parking near me",
+           "post office near me", "bakery near me", "gym near me", "hardware store near me"],
+    "ja": ["近くのコンビニ", "近くのカフェ", "近くの薬局", "近くのガソリンスタンド",
+           "近くのスーパー", "近くの駐車場", "近くの郵便局", "近くのパン屋"],
+    "de": ["Tankstelle in der Nähe", "Apotheke in der Nähe", "Supermarkt in der Nähe",
+           "Café in der Nähe", "Parkplatz in der Nähe", "Post in der Nähe", "Bäckerei in der Nähe"],
+    "fr": ["pharmacie à proximité", "café à proximité", "station-service à proximité",
+           "supermarché à proximité", "parking à proximité", "boulangerie à proximité"],
+    "es": ["farmacia cerca de mí", "cafetería cerca de mí", "gasolinera cerca de mí",
+           "supermercado cerca de mí", "aparcamiento cerca de mí", "panadería cerca de mí"],
+    "ko": ["근처 편의점", "근처 카페", "근처 약국", "근처 주유소", "근처 마트", "근처 주차장", "근처 우체국"],
+    "zh": ["附近的便利店", "附近的咖啡店", "附近的药店", "附近的加油站",
+           "附近的超市", "附近的停车场", "附近的邮局", "附近的面包店"],
+}
+
+
+def map_local_term(region):
+    base = region["hl"].split("-")[0].lower()
+    return random.choice(MAP_LOCAL_TERMS.get(base, MAP_LOCAL_TERMS["en"]))
+
+
+def pick_kind(persona_platform):
     dice = random.randint(0, 99)
-    q = urllib.parse.quote_plus(kw)
     if persona_platform in ("android", "ios", "macos"):
         cuts = [(25, "search"), (55, "news"), (85, "maps"), (100, "netprobe")]
     else:
         cuts = [(25, "search"), (60, "news"), (80, "eco"), (100, "maps")]
-    kind = next(k for cut, k in cuts if dice < cut)
+    return next(k for cut, k in cuts if dice < cut)
+
+
+def build_action(kind, persona_platform, region, kw, lat, lon, lang_qs):
+    q = urllib.parse.quote_plus(kw)
     if kind == "search":
-        return kind, f"https://www.google.com/search?q={q}&{lang_qs}"
+        return f"https://www.google.com/search?q={q}&{lang_qs}"
     if kind == "news":
-        return kind, f"https://news.google.com/home?{lang_qs}"
+        return f"https://news.google.com/home?{lang_qs}"
     if kind == "maps":
-        return kind, f"https://www.google.com/maps/search/{q}/@{lat},{lon},17z?{lang_qs}"
+        return f"https://www.google.com/maps/search/{q}/@{lat},{lon},17z?{lang_qs}"
     if kind == "eco":
-        return kind, random.choice(ECO_URLS).format(hl=region["hl"])
-    return kind, PLATFORM_PROBES[persona_platform]
+        return random.choice(ECO_URLS).format(hl=region["hl"])
+    return PLATFORM_PROBES[persona_platform]
 
 
 def run_session(region, args, log):
@@ -412,10 +440,15 @@ def run_session(region, args, log):
     t = Transport(impersonate, args.bind, ipv)
 
     for i in range(1, total + 1):
-        kw = random.choice(keywords)
+        kind = pick_kind(platform)
+        # Maps 动作 75% 用本地设施词（真人在地图里的搜法），热搜词留给 Search/News
+        if kind == "maps" and random.random() < 0.75:
+            kw = map_local_term(region)
+        else:
+            kw = random.choice(keywords)
         lat = jitter_coord(home_lat, 1)
         lon = jitter_coord(home_lon, 1)
-        kind, url = build_action(platform, region, kw, lat, lon, lang_qs)
+        url = build_action(kind, platform, region, kw, lat, lon, lang_qs)
         headers = dict(headers_base)
         if kind in referers and random.random() < 0.7:
             headers["Referer"] = referers[kind]
