@@ -61,6 +61,11 @@ uv run python reanchor.py run --region JP-Tokyo      # 正式跑一轮（约 6�
 
 多 IP 机器用 `--bind 出口IP` 锁出网口，和原版的 `--interface` 一个意思。
 
+双栈机器用 `--ip-version 4` 或 `--ip-version 6`（也可写 `--ipv4` / `--ipv6`）指定要养哪个地址：
+探针、全部养护动作、词库抓取、出口 IP 检测都会走同一协议族（底层是 libcurl 的 IPRESOLVE，
+等同 `curl -4 / -6`），不会出现 v4 在养、v6 在漏的情况。不给这个参数就跟随系统默认路由。
+和 `--bind` 同用时两者要一致，写反了日志会警告。
+
 ### 不用城市，直接给经纬度
 
 城市表里没有你要的点，或者你想精确锚到某个街区，用坐标：
@@ -83,7 +88,8 @@ uv run python reanchor.py probe --lat 34.0522 --lon -118.2437
 */20 * * * *  cd /path/to/google_ip && $HOME/.local/bin/uv run python reanchor.py run --region JP-Tokyo >/dev/null 2>&1
 ```
 
-（`uv` 的路径按你机器上的实际安装位置改；用经纬度模式就把 `--region JP-Tokyo` 换成 `--lat … --lon …`。）
+（`uv` 的路径按你机器上的实际安装位置改；用经纬度模式就把 `--region JP-Tokyo` 换成 `--lat … --lon …`；
+双栈机器再加 `--ip-version 4` 或 `--ip-version 6` 锁定要养的那个地址。）
 
 和原版一样的节奏：每 20 分钟一轮、一天 72 轮，程序内部还有 0–180 秒随机错峰，
 不用再在 cron 里加 sleep。预期以周为单位观察 `probe_history.jsonl` 里

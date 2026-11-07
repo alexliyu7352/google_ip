@@ -26,6 +26,9 @@ ip-reanchor — Google「送中」拉回工具（从 IP-Sentinel 的 mod_google 
   也可以不用城市、直接给经纬度（语言/国家没给时自动借最近城市的）：
   python3 reanchor.py run --lat 35.6812 --lon 139.7671
   python3 reanchor.py run --lat 47.6062 --lon -122.3321 --gl US --hl en-US
+
+  双栈机器要指定养哪个地址：--ip-version 4 / --ip-version 6（或 --ipv4 / --ipv6），
+  探针、养护动作、词库抓取、出口 IP 检测全程同一协议族，不给则跟随系统默认。
 """
 
 import argparse
@@ -51,17 +54,29 @@ TIMEOUT = 15
 # --------------------------------------------------------------------------
 try:
     from curl_cffi import requests as cffi_requests
+    from curl_cffi.const import CurlOpt, CurlIpResolve
     HAVE_CFFI = True
 except ImportError:
     HAVE_CFFI = False
 
 
+def _ipresolve(ip_version):
+    """--ip-version 4/6 → libcurl 的 IPRESOLVE（等同 curl -4 / -6）。"""
+    if ip_version == "4":
+        return {CurlOpt.IPRESOLVE: CurlIpResolve.V4}
+    if ip_version == "6":
+        return {CurlOpt.IPRESOLVE: CurlIpResolve.V6}
+    return None
+
+
 class Transport:
     """按 impersonate 目标发请求；cookies 用普通 dict 由上层持久化。"""
 
-    def __init__(self, impersonate: str, interface: str | None = None):
+    def __init__(self, impersonate: str, interface: str | None = None,
+                 ip_version: str | None = None):
         self.impersonate = impersonate
         self.interface = interface
+        self.ip_version = ip_version
 
     def get(self, url, headers=None, cookies=None, allow_redirects=True):
         headers = headers or {}
@@ -71,6 +86,9 @@ class Transport:
                       impersonate=self.impersonate)
             if self.interface:
                 kw["interface"] = self.interface
+            opts = _ipresolve(self.ip_version)
+            if opts:
+                kw["curl_options"] = opts
             r = cffi_requests.get(url, **kw)
             new_cookies = {}
             try:
@@ -172,13 +190,19 @@ def geo_code(region):
     return "GB" if region["gl"] == "UK" else region["gl"]
 
 
-def fetch_trending(region):
-    """当天热搜：Google Trends RSS（与原版兵工厂同一数据源）。"""
+def fetch_trending(region, ip_version=None, interface=None):
+    """当天热搜：Google Trends RSS（与原版兵工厂同一数据源）。
+    也走 impersonate 传输并跟随 --ip-version，免得词库请求从另一条协议栈漏出去。"""
     url = f"https://trends.google.com/trending/rss?geo={geo_code(region)}"
     try:
-        req = urllib.request.Request(url, headers={"User-Agent": PERSONAS[0][3]})
-        with urllib.request.urlopen(req, timeout=10) as resp:
-            root = ET.fromstring(resp.read())
+        if HAVE_CFFI:
+            t = Transport("chrome142", interface, ip_version)
+            _, _, text, _ = t.get(url, headers={"User-Agent": PERSONAS[0][3]})
+            root = ET.fromstring(text.encode())
+        else:
+            req = urllib.request.Request(url, headers={"User-Agent": PERSONAS[0][3]})
+            with urllib.request.urlopen(req, timeout=10) as resp:
+                root = ET.fromstring(resp.read())
         words = [it.find("title").text.strip() for it in root.findall("./channel/item")
                  if it.find("title") is not None and it.find("title").text]
         return words
@@ -186,7 +210,7 @@ def fetch_trending(region):
         return []
 
 
-def load_keywords(region, log):
+def load_keywords(region, log, ip_version=None, interface=None):
     """词库优先级：24h 内的实时热搜缓存 > 仓库种子词库 > 实时现拉。"""
     STATE_DIR.mkdir(parents=True, exist_ok=True)
     cache = STATE_DIR / f"kw_{region['country']}.json"
@@ -194,7 +218,7 @@ def load_keywords(region, log):
         words = json.loads(cache.read_text(encoding="utf-8"))
         if words:
             return words, "cache"
-    words = fetch_trending(region)
+    words = fetch_trending(region, ip_version, interface)
     if words:
         seed = []
         seed_file = BASE_DIR / "seed_keywords" / f"kw_{region['country']}.txt"
@@ -219,18 +243,24 @@ def make_logger(region_code):
 
     def log(level, msg):
         line = f"[{datetime.now(timezone.utc):%Y-%m-%d %H:%M:%S} UTC] [{level:<5}] [{region_code}] {msg}"
-        print(line, flush=True)
+        try:
+            print(line, flush=True)
+        except BrokenPipeError:
+            pass
         with open(log_file, "a", encoding="utf-8") as f:
             f.write(line + "\n")
     return log
 
 
-def public_ip(interface=None):
+def public_ip(interface=None, ip_version=None):
     try:
         if HAVE_CFFI:
             kw = dict(timeout=8, impersonate="chrome")
             if interface:
                 kw["interface"] = interface
+            opts = _ipresolve(ip_version)
+            if opts:
+                kw["curl_options"] = opts
             return cffi_requests.get("https://api.ip.sb/ip", **kw).text.strip()
         req = urllib.request.Request("https://api.ip.sb/ip")
         with urllib.request.urlopen(req, timeout=8) as resp:
@@ -283,9 +313,9 @@ def probe_yt(t: Transport, url):
     return m.group(1).upper() if m else ""
 
 
-def run_probe(region, interface, log):
+def run_probe(region, interface, log, ip_version=None):
     # 探针用干净的现代 Chrome 人设裸跑，不带养护 Cookie（原版 v4.2.3 的修正）
-    t = Transport("chrome142", interface)
+    t = Transport("chrome142", interface, ip_version)
     jump = probe_jump(t)
     prem = probe_yt(t, "https://www.youtube.com/premium")
     music = probe_yt(t, "https://music.youtube.com/")
@@ -300,6 +330,7 @@ def run_probe(region, interface, log):
     else:
         verdict = f"DRIFT（目标 {target}，实际 Jump={jump or '无'} Prem={prem or '无'} Music={music or '无'}）"
     rec = {"ts": datetime.now(timezone.utc).isoformat(), "region": region["code"],
+           "ip_version": ip_version or "any",
            "jump": jump, "yt_premium": prem, "yt_music": music, "verdict": verdict}
     STATE_DIR.mkdir(parents=True, exist_ok=True)
     with open(STATE_DIR / "probe_history.jsonl", "a", encoding="utf-8") as f:
@@ -342,16 +373,22 @@ def build_action(persona_platform, region, kw, lat, lon, lang_qs):
 
 
 def run_session(region, args, log):
-    ip = public_ip(args.bind)
+    ipv = getattr(args, "ip_version", None)
+    if args.bind and ipv:
+        bind_is_v6 = ":" in args.bind
+        if (ipv == "6") != bind_is_v6:
+            log("WARN", f"--bind 的地址族与 --ip-version {ipv} 不一致，以 --bind 为准时请核对")
+    ip = public_ip(args.bind, ipv)
     if ip == "unknown":
         log("WARN", "拿不到出口 IP，人设锚定退化为随机")
     pool = persona_pool_for_ip(ip)
     _, pname, impersonate, ua, platform = pick_persona(pool)
-    log("INFO", f"出口 IP: {ip} | 人设: {pname}（池内 {len(pool)} 台固定设备）| 指纹: {impersonate}")
+    fam = f"IPv{ipv}" if ipv else "跟随系统（未指定 v4/v6）"
+    log("INFO", f"出口 IP: {ip} | 协议族: {fam} | 人设: {pname}（池内 {len(pool)} 台固定设备）| 指纹: {impersonate}")
     if not HAVE_CFFI:
-        log("WARN", "未装 curl_cffi，当前是降级传输，指纹与 UA 对不齐。先 pip install curl_cffi")
+        log("WARN", "未装 curl_cffi，当前是降级传输，指纹与 UA 对不齐，--ip-version 也不会生效。先 uv sync")
 
-    keywords, src = load_keywords(region, log)
+    keywords, src = load_keywords(region, log, ipv, args.bind)
     if not keywords:
         return False
     log("INFO", f"词库: {len(keywords)} 条（来源 {src}）")
@@ -372,7 +409,7 @@ def run_session(region, args, log):
     total = args.actions if args.actions else random.randint(5, 8)
     headers_base = {"User-Agent": ua, "Accept-Language": accept_language(region)}
     referers = {}
-    t = Transport(impersonate, args.bind)
+    t = Transport(impersonate, args.bind, ipv)
 
     for i in range(1, total + 1):
         kw = random.choice(keywords)
@@ -408,9 +445,21 @@ def main():
     ap = argparse.ArgumentParser(description="Google 送中拉回（IP-Sentinel Google 模块的独立重写版）")
     sub = ap.add_subparsers(dest="cmd", required=True)
     sub.add_parser("regions")
-    sub.add_parser("fingerprint")
+
+    def add_ip_version(p):
+        p.add_argument("--ip-version", choices=["4", "6"], default=None,
+                       help="强制出口协议族：4 只用 IPv4、6 只用 IPv6（等同 curl -4/-6）；不给则跟随系统")
+        # 注意：不能用 -4/-6 短旗，会让 argparse 把 --lon -121.9 的负数经度当成选项
+        p.add_argument("--ipv4", dest="ip_version", action="store_const", const="4",
+                       help="同 --ip-version 4")
+        p.add_argument("--ipv6", dest="ip_version", action="store_const", const="6",
+                       help="同 --ip-version 6")
+
+    fp = sub.add_parser("fingerprint")
+    add_ip_version(fp)
     for name in ("probe", "run"):
         p = sub.add_parser(name)
+        add_ip_version(p)
         p.add_argument("--region", default=None, help="如 JP-Tokyo（先用 regions 查）；与 --lat/--lon 二选一")
         p.add_argument("--lat", type=float, default=None, help="自定义纬度，如 35.6812（须与 --lon 成对）")
         p.add_argument("--lon", type=float, default=None, help="自定义经度，如 139.7671（须与 --lat 成对）")
@@ -430,13 +479,17 @@ def main():
             print(f"{r['code']:<28} {r['name']:<34} {r['lat']},{r['lon']}  hl={r['hl']} gl={r['gl']}")
         return
     if args.cmd == "fingerprint":
-        ip = public_ip()
-        print(f"出口 IP: {ip}")
+        ip = public_ip(None, args.ip_version)
+        fam = f"（强制 IPv{args.ip_version}）" if args.ip_version else ""
+        print(f"出口 IP: {ip}{fam}")
         if HAVE_CFFI:
             for target in ("chrome142", "firefox133", "safari184_ios"):
                 try:
-                    r = cffi_requests.get("https://tls.browserleaks.com/json",
-                                          impersonate=target, timeout=12)
+                    kw = dict(impersonate=target, timeout=12)
+                    opts = _ipresolve(args.ip_version)
+                    if opts:
+                        kw["curl_options"] = opts
+                    r = cffi_requests.get("https://tls.browserleaks.com/json", **kw)
                     d = json.loads(r.text)
                     print(f"{target:<16} UA={d.get('user_agent')[:70]}...")
                     print(f"{'':<16} JA4={d.get('ja4')}  JA3={d.get('ja3_hash')}")
@@ -470,10 +523,10 @@ def main():
         log("INFO", f"后台唤醒，随机错峰休眠 {jitter}s")
         time.sleep(jitter)
     if args.cmd == "probe":
-        run_probe(region, args.bind, log)
+        run_probe(region, args.bind, log, args.ip_version)
     else:
         if run_session(region, args, log) and not args.no_probe and not args.dry_run:
-            run_probe(region, args.bind, log)
+            run_probe(region, args.bind, log, args.ip_version)
 
 
 if __name__ == "__main__":
