@@ -1,0 +1,13 @@
+[project]
+name = "google-ip-reanchor"
+version = "0.1.0"
+description = "Google IP geo re-anchoring: feed a VPS IP local-resident traffic signals (search/news/maps with local language, coordinates and trending keywords, over browser-impersonated curl) to pull its Google region判定 back from a wrong country. Extracted and rewritten from IP-Sentinel's Google module."
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "curl_cffi>=0.7",
+]
+
+# 单文件脚本项目：不打包成库，uv 只管依赖与虚拟环境
+[tool.uv]
+package = false

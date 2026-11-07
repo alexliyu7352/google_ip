@@ -1,0 +1,675 @@
+{
+ "note": "Region anchors (lat/lon + language) derived from hotyue/IP-Sentinel data/regions (AGPL-3.0), trimmed to the fields the Google module needs.",
+ "regions": [
+  {
+   "code": "AE-Dubai",
+   "country": "AE",
+   "city": "Dubai",
+   "name": "UAE (Dubai)",
+   "lat": 25.2048,
+   "lon": 55.2708,
+   "hl": "en-AE",
+   "gl": "AE"
+  },
+  {
+   "code": "AU-Sydney",
+   "country": "AU",
+   "city": "Sydney",
+   "name": "Australia - Sydney",
+   "lat": -33.8697,
+   "lon": 151.2085,
+   "hl": "en-AU",
+   "gl": "AU"
+  },
+  {
+   "code": "AU-Brisbane",
+   "country": "AU",
+   "city": "Brisbane",
+   "name": "Australia - Brisbane",
+   "lat": -27.4697,
+   "lon": 153.0252,
+   "hl": "en-AU",
+   "gl": "AU"
+  },
+  {
+   "code": "AU-Adelaide",
+   "country": "AU",
+   "city": "Adelaide",
+   "name": "Australia - Adelaide",
+   "lat": -34.9227,
+   "lon": 138.6016,
+   "hl": "en-AU",
+   "gl": "AU"
+  },
+  {
+   "code": "AU-Melbourne",
+   "country": "AU",
+   "city": "Melbourne",
+   "name": "Australia - Melbourne",
+   "lat": -37.8106,
+   "lon": 144.9624,
+   "hl": "en-AU",
+   "gl": "AU"
+  },
+  {
+   "code": "AU-Perth",
+   "country": "AU",
+   "city": "Perth",
+   "name": "Australia - Perth",
+   "lat": -31.9545,
+   "lon": 115.8582,
+   "hl": "en-AU",
+   "gl": "AU"
+  },
+  {
+   "code": "BD-Dhaka",
+   "country": "BD",
+   "city": "Dhaka",
+   "name": "Bangladesh (Dhaka)",
+   "lat": 23.8103,
+   "lon": 90.4125,
+   "hl": "en-BD",
+   "gl": "BD"
+  },
+  {
+   "code": "BG-Sofia",
+   "country": "BG",
+   "city": "Sofia",
+   "name": "Bulgaria - Sofia",
+   "lat": 42.6977,
+   "lon": 23.3219,
+   "hl": "bg",
+   "gl": "BG"
+  },
+  {
+   "code": "CA-Montreal",
+   "country": "CA",
+   "city": "Montreal",
+   "name": "Canada - Montreal",
+   "lat": 45.5017,
+   "lon": -73.5673,
+   "hl": "en",
+   "gl": "CA"
+  },
+  {
+   "code": "CA-Toronto",
+   "country": "CA",
+   "city": "Toronto",
+   "name": "Canada - Toronto",
+   "lat": 43.6532,
+   "lon": -79.3832,
+   "hl": "en",
+   "gl": "CA"
+  },
+  {
+   "code": "DE-Berlin",
+   "country": "DE",
+   "city": "Berlin",
+   "name": "Germany - Berlin",
+   "lat": 52.52,
+   "lon": 13.405,
+   "hl": "de-DE",
+   "gl": "DE"
+  },
+  {
+   "code": "DE-Nuremberg",
+   "country": "DE",
+   "city": "Nuremberg",
+   "name": "Germany - Bavaria (Nuremberg)",
+   "lat": 49.4521,
+   "lon": 11.0767,
+   "hl": "de-DE",
+   "gl": "DE"
+  },
+  {
+   "code": "DE-Frankfurt",
+   "country": "DE",
+   "city": "Frankfurt",
+   "name": "Germany - Frankfurt",
+   "lat": 50.1109,
+   "lon": 8.6821,
+   "hl": "de",
+   "gl": "DE"
+  },
+  {
+   "code": "DE-Aachen",
+   "country": "DE",
+   "city": "Aachen",
+   "name": "Germany - Aachen",
+   "lat": 50.7753,
+   "lon": 6.0839,
+   "hl": "de",
+   "gl": "DE"
+  },
+  {
+   "code": "DE-Falkenstein",
+   "country": "DE",
+   "city": "Falkenstein",
+   "name": "Germany - Saxony (Falkenstein)",
+   "lat": 50.4779,
+   "lon": 12.3713,
+   "hl": "de-DE",
+   "gl": "DE"
+  },
+  {
+   "code": "ES-Madrid",
+   "country": "ES",
+   "city": "Madrid",
+   "name": "Spain - Madrid",
+   "lat": 40.4168,
+   "lon": -3.7038,
+   "hl": "es",
+   "gl": "ES"
+  },
+  {
+   "code": "FR-Paris",
+   "country": "FR",
+   "city": "Paris",
+   "name": "France - Paris",
+   "lat": 48.8566,
+   "lon": 2.3522,
+   "hl": "fr",
+   "gl": "FR"
+  },
+  {
+   "code": "HK-HongKong",
+   "country": "HK",
+   "city": "HongKong",
+   "name": "Hong Kong",
+   "lat": 22.2847,
+   "lon": 114.1582,
+   "hl": "zh-HK",
+   "gl": "HK"
+  },
+  {
+   "code": "ID-Jakarta",
+   "country": "ID",
+   "city": "Jakarta",
+   "name": "Indonesia (Jakarta)",
+   "lat": -6.2088,
+   "lon": 106.8456,
+   "hl": "id-ID",
+   "gl": "ID"
+  },
+  {
+   "code": "IN-Delhi",
+   "country": "IN",
+   "city": "Delhi",
+   "name": "India (Delhi)",
+   "lat": 28.6139,
+   "lon": 77.209,
+   "hl": "en-IN",
+   "gl": "IN"
+  },
+  {
+   "code": "JP-Osaka",
+   "country": "JP",
+   "city": "Osaka",
+   "name": "Japan (Osaka)",
+   "lat": 34.6937,
+   "lon": 135.5023,
+   "hl": "ja",
+   "gl": "JP"
+  },
+  {
+   "code": "JP-Tokyo",
+   "country": "JP",
+   "city": "Tokyo",
+   "name": "日本 (东京)",
+   "lat": 35.6812,
+   "lon": 139.7671,
+   "hl": "ja",
+   "gl": "JP"
+  },
+  {
+   "code": "KH-PhnomPenh",
+   "country": "KH",
+   "city": "PhnomPenh",
+   "name": "Cambodia (Phnom Penh)",
+   "lat": 11.5564,
+   "lon": 104.9282,
+   "hl": "en-KH",
+   "gl": "KH"
+  },
+  {
+   "code": "KR-Seoul",
+   "country": "KR",
+   "city": "Seoul",
+   "name": "South Korea - Seoul",
+   "lat": 37.5665,
+   "lon": 126.978,
+   "hl": "ko",
+   "gl": "KR"
+  },
+  {
+   "code": "LA-Vientiane",
+   "country": "LA",
+   "city": "Vientiane",
+   "name": "Laos (Vientiane)",
+   "lat": 17.9757,
+   "lon": 102.6331,
+   "hl": "en-LA",
+   "gl": "LA"
+  },
+  {
+   "code": "MM-Yangon",
+   "country": "MM",
+   "city": "Yangon",
+   "name": "Myanmar (Yangon)",
+   "lat": 16.8409,
+   "lon": 96.1735,
+   "hl": "en-MM",
+   "gl": "MM"
+  },
+  {
+   "code": "MN-Ulaanbaatar",
+   "country": "MN",
+   "city": "Ulaanbaatar",
+   "name": "Mongolia (Ulaanbaatar)",
+   "lat": 47.8864,
+   "lon": 106.9057,
+   "hl": "mn-MN",
+   "gl": "MN"
+  },
+  {
+   "code": "MO-Macau",
+   "country": "MO",
+   "city": "Macau",
+   "name": "Macau (澳门)",
+   "lat": 22.1987,
+   "lon": 113.5439,
+   "hl": "zh-HK",
+   "gl": "MO"
+  },
+  {
+   "code": "MY-Kuala_Lumpur",
+   "country": "MY",
+   "city": "Kuala_Lumpur",
+   "name": "Malaysia - Kuala Lumpur",
+   "lat": 3.139,
+   "lon": 101.6869,
+   "hl": "en-MY",
+   "gl": "MY"
+  },
+  {
+   "code": "NG-Lagos",
+   "country": "NG",
+   "city": "Lagos",
+   "name": "Nigeria - Lagos",
+   "lat": 6.5244,
+   "lon": 3.3792,
+   "hl": "en-NG",
+   "gl": "NG"
+  },
+  {
+   "code": "NL-Amsterdam",
+   "country": "NL",
+   "city": "Amsterdam",
+   "name": "Netherlands - Amsterdam",
+   "lat": 52.3676,
+   "lon": 4.9041,
+   "hl": "nl",
+   "gl": "NL"
+  },
+  {
+   "code": "NP-Kathmandu",
+   "country": "NP",
+   "city": "Kathmandu",
+   "name": "Nepal (Kathmandu)",
+   "lat": 27.7172,
+   "lon": 85.324,
+   "hl": "en-NP",
+   "gl": "NP"
+  },
+  {
+   "code": "PH-Manila",
+   "country": "PH",
+   "city": "Manila",
+   "name": "Philippines (Manila)",
+   "lat": 14.5995,
+   "lon": 120.9842,
+   "hl": "en-PH",
+   "gl": "PH"
+  },
+  {
+   "code": "SA-Riyadh",
+   "country": "SA",
+   "city": "Riyadh",
+   "name": "Saudi Arabia (Riyadh)",
+   "lat": 24.7136,
+   "lon": 46.6753,
+   "hl": "ar-SA",
+   "gl": "SA"
+  },
+  {
+   "code": "SG-Singapore",
+   "country": "SG",
+   "city": "Singapore",
+   "name": "Singapore - Singapore",
+   "lat": 1.3521,
+   "lon": 103.8198,
+   "hl": "en-SG",
+   "gl": "SG"
+  },
+  {
+   "code": "TH-Bangkok",
+   "country": "TH",
+   "city": "Bangkok",
+   "name": "Thailand (Bangkok)",
+   "lat": 13.7563,
+   "lon": 100.5018,
+   "hl": "th-TH",
+   "gl": "TH"
+  },
+  {
+   "code": "TR-Istanbul",
+   "country": "TR",
+   "city": "Istanbul",
+   "name": "Turkey (Istanbul)",
+   "lat": 41.0082,
+   "lon": 28.9784,
+   "hl": "tr-TR",
+   "gl": "TR"
+  },
+  {
+   "code": "TW-Taipei",
+   "country": "TW",
+   "city": "Taipei",
+   "name": "Taiwan - Taipei",
+   "lat": 25.033,
+   "lon": 121.5654,
+   "hl": "zh-TW",
+   "gl": "TW"
+  },
+  {
+   "code": "UK-Coventry",
+   "country": "UK",
+   "city": "Coventry",
+   "name": "United Kingdom - Coventry",
+   "lat": 52.4068,
+   "lon": -1.5197,
+   "hl": "en",
+   "gl": "GB"
+  },
+  {
+   "code": "UK-London",
+   "country": "UK",
+   "city": "London",
+   "name": "United Kingdom - London",
+   "lat": 51.5074,
+   "lon": -0.1278,
+   "hl": "en",
+   "gl": "GB"
+  },
+  {
+   "code": "US-Phoenix",
+   "country": "US",
+   "city": "Phoenix",
+   "name": "United States - Arizona (Phoenix)",
+   "lat": 33.4484,
+   "lon": -112.074,
+   "hl": "en-US",
+   "gl": "US"
+  },
+  {
+   "code": "US-Fremont",
+   "country": "US",
+   "city": "Fremont",
+   "name": "US - California (Fremont)",
+   "lat": 37.5485,
+   "lon": -121.9886,
+   "hl": "en-US",
+   "gl": "US"
+  },
+  {
+   "code": "US-Irvine",
+   "country": "US",
+   "city": "Irvine",
+   "name": "United States - California (Irvine)",
+   "lat": 33.6846,
+   "lon": -117.8265,
+   "hl": "en-US",
+   "gl": "US"
+  },
+  {
+   "code": "US-Los_Angeles",
+   "country": "US",
+   "city": "Los_Angeles",
+   "name": "United States - Los Angeles",
+   "lat": 34.0522,
+   "lon": -118.2437,
+   "hl": "en",
+   "gl": "US"
+  },
+  {
+   "code": "US-Ontario",
+   "country": "US",
+   "city": "Ontario",
+   "name": "United States - California (Ontario)",
+   "lat": 34.0633,
+   "lon": -117.6509,
+   "hl": "en-US",
+   "gl": "US"
+  },
+  {
+   "code": "US-San_Jose",
+   "country": "US",
+   "city": "San_Jose",
+   "name": "United States - San Jose",
+   "lat": 37.3382,
+   "lon": -121.8863,
+   "hl": "en",
+   "gl": "US"
+  },
+  {
+   "code": "US-Boulder",
+   "country": "US",
+   "city": "Boulder",
+   "name": "United States - Colorado (Boulder)",
+   "lat": 40.015,
+   "lon": -105.2705,
+   "hl": "en-US",
+   "gl": "US"
+  },
+  {
+   "code": "US-Miami",
+   "country": "US",
+   "city": "Miami",
+   "name": "United States - Florida (Miami)",
+   "lat": 25.7617,
+   "lon": -80.1918,
+   "hl": "en-US",
+   "gl": "US"
+  },
+  {
+   "code": "US-Atlanta",
+   "country": "US",
+   "city": "Atlanta",
+   "name": "United States - Georgia (Atlanta)",
+   "lat": 33.749,
+   "lon": -84.388,
+   "hl": "en-US",
+   "gl": "US"
+  },
+  {
+   "code": "US-Honolulu",
+   "country": "US",
+   "city": "Honolulu",
+   "name": "USA (Hawaii - Honolulu)",
+   "lat": 21.3069,
+   "lon": -157.8583,
+   "hl": "en-US",
+   "gl": "US"
+  },
+  {
+   "code": "US-Council_Bluffs",
+   "country": "US",
+   "city": "Council_Bluffs",
+   "name": "United States - Iowa (Council Bluffs)",
+   "lat": 41.2619,
+   "lon": -95.8608,
+   "hl": "en-US",
+   "gl": "US"
+  },
+  {
+   "code": "US-Chicago",
+   "country": "US",
+   "city": "Chicago",
+   "name": "🇺🇸 United States - Chicago",
+   "lat": 41.8818,
+   "lon": -87.6231,
+   "hl": "en",
+   "gl": "US"
+  },
+  {
+   "code": "US-Warrenville",
+   "country": "US",
+   "city": "Warrenville",
+   "name": "United States - Warrenville",
+   "lat": 41.8164,
+   "lon": -88.1748,
+   "hl": "en",
+   "gl": "US"
+  },
+  {
+   "code": "US-Kansas_City",
+   "country": "US",
+   "city": "Kansas_City",
+   "name": "United States - Kansas (Kansas City)",
+   "lat": 39.1155,
+   "lon": -94.6268,
+   "hl": "en-US",
+   "gl": "US"
+  },
+  {
+   "code": "US-Charlotte",
+   "country": "US",
+   "city": "Charlotte",
+   "name": "United States - Charlotte",
+   "lat": 35.2271,
+   "lon": -80.8431,
+   "hl": "en",
+   "gl": "US"
+  },
+  {
+   "code": "US-Newark",
+   "country": "US",
+   "city": "Newark",
+   "name": "United States - New Jersey (Newark)",
+   "lat": 40.7357,
+   "lon": -74.1724,
+   "hl": "en-US",
+   "gl": "US"
+  },
+  {
+   "code": "US-Las_Vegas",
+   "country": "US",
+   "city": "Las_Vegas",
+   "name": "United States - Las Vegas",
+   "lat": 36.1699,
+   "lon": -115.1398,
+   "hl": "en",
+   "gl": "US"
+  },
+  {
+   "code": "US-Buffalo",
+   "country": "US",
+   "city": "Buffalo",
+   "name": "United States - Buffalo",
+   "lat": 42.8864,
+   "lon": -78.8784,
+   "hl": "en-US",
+   "gl": "US"
+  },
+  {
+   "code": "US-New_York",
+   "country": "US",
+   "city": "New_York",
+   "name": "United States - New York",
+   "lat": 40.7128,
+   "lon": -74.006,
+   "hl": "en-US",
+   "gl": "US"
+  },
+  {
+   "code": "US-Columbus",
+   "country": "US",
+   "city": "Columbus",
+   "name": "United States - Ohio (Columbus)",
+   "lat": 39.9612,
+   "lon": -83.0007,
+   "hl": "en-US",
+   "gl": "US"
+  },
+  {
+   "code": "US-Bend",
+   "country": "US",
+   "city": "Bend",
+   "name": "United States - Bend",
+   "lat": 44.0582,
+   "lon": -121.3153,
+   "hl": "en",
+   "gl": "US"
+  },
+  {
+   "code": "US-Dallas",
+   "country": "US",
+   "city": "Dallas",
+   "name": "United States - Dallas",
+   "lat": 32.7767,
+   "lon": -96.797,
+   "hl": "en",
+   "gl": "US"
+  },
+  {
+   "code": "US-Houston",
+   "country": "US",
+   "city": "Houston",
+   "name": "USA - Houston",
+   "lat": 29.7604,
+   "lon": -95.3698,
+   "hl": "en-US",
+   "gl": "US"
+  },
+  {
+   "code": "US-Salt_Lake_City",
+   "country": "US",
+   "city": "Salt_Lake_City",
+   "name": "United States - Salt Lake City",
+   "lat": 40.7608,
+   "lon": -111.891,
+   "hl": "en",
+   "gl": "US"
+  },
+  {
+   "code": "US-Ashburn",
+   "country": "US",
+   "city": "Ashburn",
+   "name": "United States - Virginia (Ashburn)",
+   "lat": 39.0438,
+   "lon": -77.4874,
+   "hl": "en-US",
+   "gl": "US"
+  },
+  {
+   "code": "US-Seattle",
+   "country": "US",
+   "city": "Seattle",
+   "name": "United States - Seattle",
+   "lat": 47.6062,
+   "lon": -122.3321,
+   "hl": "en",
+   "gl": "US"
+  },
+  {
+   "code": "VN-Hanoi",
+   "country": "VN",
+   "city": "Hanoi",
+   "name": "Vietnam - Hanoi",
+   "lat": 21.0285,
+   "lon": 105.8542,
+   "hl": "vi",
+   "gl": "VN"
+  }
+ ]
+}
