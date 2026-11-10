@@ -3,6 +3,12 @@
 从 [hotyue/IP-Sentinel](https://github.com/hotyue/IP-Sentinel) 的 Google 模块拆出、重写的独立版。
 只做一件事：把被 Google 判到中国的 VPS IP，用目标地区的本土流量长期喂回来。
 
+## 缘起
+
+做这个项目，是因为我一个朋友的 VPS 的 IP 被 Google「送中」了。
+我参考、研究了一些网上的文章和相关项目之后，才有了这个项目。
+我本人其实不需要、也用不到它，但朋友亲测成功了，而且只用了 3 天（见下面「亲测结果」）。
+
 ## 原理一句话
 
 IP 的区域画像是被流量喂出来的：之前被大量中文语境流量喂成 CN，
@@ -38,7 +44,7 @@ IP 的区域画像是被流量喂出来的：之前被大量中文语境流量�
 
 ## 亲测结果
 
-一台美国 Fremont 的 VPS（IPv4）：2026-11-07 探针确诊 **CN_LOCKED**
+朋友的一台美国 Fremont VPS（IPv4）：2026-11-07 探针确诊 **CN_LOCKED**
 （google.com 跳转、YouTube Premium、YouTube Music 三路全判 CN），
 挂 cron 每 20 分钟一轮开始养护，**约 3 天后（2026-11-10）探针转为 OK，三路全判 US**。
 
