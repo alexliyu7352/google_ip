@@ -352,6 +352,106 @@ def run_probe(region, interface, log, ip_version=None):
 
 
 # --------------------------------------------------------------------------
+# 保养模式（自动降频）：探针连续 OK 满 3 天后，治疗频自动降为保养频
+#   - 每 6 小时一轮轻动作（2 个动作 + 探针），每天一轮全量动作压舱
+#   - 其余 cron 唤醒直接跳过，不发请求
+#   - 探针一旦不再 OK，连续 OK 中断，自动回到每轮全量，直到重新连续 OK 满 3 天
+# cron 不用改，还是每 20 分钟唤醒；降频决策全在脚本内。手动跑（终端）和
+# 显式 --actions 的运行不降频；--no-maintain 可整体关掉。
+# --------------------------------------------------------------------------
+MAINTAIN_OK_DAYS = 3          # 连续 OK 满几天进入保养
+MAINTAIN_MIN_OK_RECORDS = 6   # 且至少几条 OK 记录，防止两三条记录误判
+MAINTAIN_LIGHT_HOURS = 6      # 保养期轻动作间隔
+MAINTAIN_FULL_HOURS = 24      # 保养期全量压舱间隔
+MAINTAIN_LIGHT_ACTIONS = 2
+
+
+def _maintain_key(region, ip_version):
+    return f"{region['code']}|{ip_version or 'any'}"
+
+
+def _ok_streak(region, ip_version):
+    """读探针历史，返回尾部连续 OK 的 (条数, 起始时间)；无记录返回 (0, None)。"""
+    path = STATE_DIR / "probe_history.jsonl"
+    if not path.exists():
+        return 0, None
+    want_v = ip_version or "any"
+    recs = []
+    try:
+        for line in path.read_text(encoding="utf-8").splitlines():
+            try:
+                rec = json.loads(line)
+            except Exception:
+                continue
+            if rec.get("region") == region["code"] and rec.get("ip_version", "any") == want_v:
+                recs.append(rec)
+    except Exception:
+        return 0, None
+    count, start = 0, None
+    for rec in reversed(recs):
+        if str(rec.get("verdict", "")).startswith("OK"):
+            count += 1
+            try:
+                start = datetime.fromisoformat(rec["ts"])
+            except Exception:
+                pass
+        else:
+            break
+    return count, start
+
+
+def decide_maintain(region, args, log):
+    """返回 None=照常全量 / 'full'=保养期全量压舱 / 'light'=轻动作 / 'skip'=本轮跳过。"""
+    if (getattr(args, "no_maintain", False) or args.dry_run or args.actions
+            or sys.stdout.isatty()):
+        return None
+    count, start = _ok_streak(region, args.ip_version)
+    if count < MAINTAIN_MIN_OK_RECORDS or start is None:
+        return None
+    ok_days = (datetime.now(timezone.utc) - start).total_seconds() / 86400
+    if ok_days < MAINTAIN_OK_DAYS:
+        return None
+    state_file = STATE_DIR / "maintain_state.json"
+    state = {}
+    if state_file.exists():
+        try:
+            state = json.loads(state_file.read_text(encoding="utf-8"))
+        except Exception:
+            state = {}
+    key = _maintain_key(region, args.ip_version)
+    mine = state.get(key, {})
+    now = datetime.now(timezone.utc)
+
+    def _hours_ago(field):
+        raw = mine.get(field)
+        if not raw:
+            return None
+        try:
+            return (now - datetime.fromisoformat(raw)).total_seconds() / 3600
+        except Exception:
+            return None
+
+    since_full = _hours_ago("last_full")
+    since_light = _hours_ago("last_light")
+    if since_full is None or since_full >= MAINTAIN_FULL_HOURS:
+        mode = "full"
+        mine["last_full"] = now.isoformat()
+    elif since_light is None or since_light >= MAINTAIN_LIGHT_HOURS:
+        mode = "light"
+        mine["last_light"] = now.isoformat()
+    else:
+        mode = "skip"
+    if mode != "skip":
+        state[key] = mine
+        STATE_DIR.mkdir(parents=True, exist_ok=True)
+        state_file.write_text(json.dumps(state, ensure_ascii=False), encoding="utf-8")
+    log("INFO", f"保养模式：探针已连续 OK {ok_days:.1f} 天（{count} 条），本轮={mode}"
+                + ("（每天一次全量压舱）" if mode == "full" else
+                   "（轻动作）" if mode == "light" else "（距上次保养动作不足 6 小时）"))
+    return mode
+
+
+# --------------------------------------------------------------------------
 # 养护会话（原版 mod_google 的动作轮盘，换成 curl_cffi 传输）
 # --------------------------------------------------------------------------
 PLATFORM_PROBES = {
@@ -515,6 +615,8 @@ def main():
             p.add_argument("--dry-run", action="store_true")
             p.add_argument("--fast", action="store_true", help="测试用：停留缩到 1-3 秒")
             p.add_argument("--no-probe", action="store_true", help="跑完不做三核自检")
+            p.add_argument("--no-maintain", action="store_true",
+                           help="关掉保养模式自动降频，每轮都全量跑")
     args = ap.parse_args()
 
     regions = load_regions()
@@ -561,6 +663,13 @@ def main():
         print("必须给 --region 或 --lat/--lon 其中一组")
         sys.exit(2)
     log = make_logger(region["code"])
+    # 保养模式决策放在错峰休眠之前：判为 skip 的轮次直接退出，不浪费等待也不发请求
+    if args.cmd == "run":
+        mode = decide_maintain(region, args, log)
+        if mode == "skip":
+            return
+        if mode == "light":
+            args.actions = MAINTAIN_LIGHT_ACTIONS
     # 后台由 cron 唤醒时先随机错峰（原版的 jitter 防惊群），终端手动跑不睡
     if args.cmd == "run" and not sys.stdout.isatty() and not args.fast and not args.dry_run:
         jitter = random.randint(0, 180)
